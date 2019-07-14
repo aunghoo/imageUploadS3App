@@ -4,7 +4,7 @@ const router = express.Router();
 //TODO: needs to standardize the exports of the routes
 const imageUpload = require('../services/imageUpload');
 
-const singleUpload = imageUpload.single('image');
+// const singleUpload = imageUpload.single('image');
 
 router.post('/imageUpload', (req, res) => {
   singleUpload(req, res, function(err){

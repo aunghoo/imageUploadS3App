@@ -1,109 +1,77 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-const BASE_URL = 'http://localhost:5000/';
-
 class App extends Component {
-constructor(props) {
-  super(props);
-  this.state = {
-    images: [],
-    imageUrls: [],
-    message: ''
+  constructor(props){
+    super(props);
+    this.state = {
+      success : false,
+      url : ""
+    }
   }
-}
-selectImages = (event) => {
-  let images = []
-  for (var i = 0; i < event.target.files.length; i++) {
-    images[i] = event.target.files.item(i);
+
+  handleChange = (ev) => {
+    this.setState({success: false, url : ""});
+
   }
-  images = images.filter(image => image.name.match(/\.(jpg|jpeg|png|gif)$/))
-  let message = `${images.length} valid image(s) selected`
-  this.setState({ images, message })
-}
-
-uploadImages = () => {
-  const uploaders = this.state.images.map(image => {
-    const data = new FormData();
-    console.log("got here");
-    data.append("image", image, image.name);
-
-    // Make an AJAX upload request using Axios
-    return axios.post(BASE_URL + 'api/imageUpload', data)
-    .then(response => {
-      this.setState({
-        imageUrls: [ response.data.imageUrl, ...this.state.imageUrls ]
-      });
-      console.log(response.data.imageUrl);
+  // Perform the upload
+  handleUpload = (ev) => {
+    let file = this.uploadInput.files[0];
+    // Split the filename to get the name and type
+    let fileParts = this.uploadInput.files[0].name.split('.');
+    let fileName = fileParts[0];
+    let fileType = fileParts[1];
+    console.log("Preparing the upload");
+    axios.post("http://localhost:3001/sign_s3",{
+      fileName : fileName,
+      fileType : fileType
     })
-  });
+    .then(response => {
+      var returnData = response.data.data.returnData;
+      var signedRequest = returnData.signedRequest;
+      var url = returnData.url;
+      this.setState({url: url})
+      console.log("Recieved a signed request " + signedRequest);
 
-  // Once all the files are uploaded
-  axios.all(uploaders).then(() => {
-    console.log('done');
-    }).catch(err => alert(err.message));
-}
-
-render() {
-  return (
-    <div>
-      <h1>Image Uploader</h1><hr/>
-      <form onSubmit={this.submitFormOnClick}>
-        <div className="modal-body">
-          <div className="">
-            <label className="profileFormLabel" htmlFor="username">
-              Username
-            </label>
-            <input
-              type="text"
-              id="username"
-              className="form-control"
-              name="username"
-            />
-          </div>
-          <div className="">
-            <label className="profileFormLabel" htmlFor="title">
-              Profession
-            </label>
-            <input
-              type="text"
-              id="title"
-              className="form-control"
-              name="title"
-            />
-          </div>
-          <div className="col-sm-12">
-            <p>Upload Image</p><hr/>
-            <div className="col-sm-4">
-              <input className="form-control " type="file"
-                onChange={this.selectImages} multiple/>
-            </div>
-            <p className="text-info">{this.state.message}</p>
-            <br/>
-          </div>
-        </div>
-        <div className="modal-footer">
-          <div className="flex-row">
-            <button type="submit" value="Submit" className="btn btn-dark" onClick={this.uploadImages}>
-              Submit
-            </button>
-          </div>
-        </div>
-      </form>
-
-      <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><hr/><br/>
-
-      <div className="row col-lg-12">
-        {
-        this.state.imageUrls.map((url, i) => (
-          <div className="col-lg-2" key={i}>
-            <img src={BASE_URL + url} className="img-rounded img-responsive"
-            alt="not available"/><br/>
-          </div>
-        ))
+     // Put the fileType in the headers for the upload
+      var options = {
+        headers: {
+          'Content-Type': fileType
         }
+      };
+      axios.put(signedRequest,file,options)
+      .then(result => {
+        console.log("Response from s3")
+        this.setState({success: true});
+      })
+      .catch(error => {
+        alert("ERROR " + JSON.stringify(error));
+      })
+    })
+    .catch(error => {
+      alert(JSON.stringify(error));
+    })
+  }
+
+
+  render() {
+    const Success_message = () => (
+      <div style={{padding:50}}>
+        <h3 style={{color: 'green'}}>SUCCESSFUL UPLOAD</h3>
+        <a href={this.state.url}>Access the file here</a>
+        <br/>
       </div>
-    </div>
-  );
+    )
+    return (
+      <div className="App">
+        <center>
+          <h1>UPLOAD A FILE</h1>
+          {this.state.success ? <Success_message/> : null}
+          <input onChange={this.handleChange} ref={(ref) => { this.uploadInput = ref; }} type="file"/>
+          <br/>
+          <button onClick={this.handleUpload}>UPLOAD</button>
+        </center>
+      </div>
+    );
   }
 }
 export default App;
