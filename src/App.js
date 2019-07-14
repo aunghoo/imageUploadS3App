@@ -21,15 +21,21 @@ class App extends Component {
     let fileName = fileParts[0];
     let fileType = fileParts[1];
     console.log("Preparing the upload");
-    axios.post("http://localhost:3001/sign_s3",{
+    console.log("file name is ", fileName);
+    console.log("file type is ", fileType);
+
+    axios.post("http://localhost:5000/api/imageUpload",{
       fileName : fileName,
       fileType : fileType
     })
     .then(response => {
+      console.log("got here");
       var returnData = response.data.data.returnData;
       var signedRequest = returnData.signedRequest;
       var url = returnData.url;
       this.setState({url: url})
+      console.log("Recieved url " + url);
+
       console.log("Recieved a signed request " + signedRequest);
 
      // Put the fileType in the headers for the upload
