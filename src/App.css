@@ -23,6 +23,81 @@
   color: #61dafb;
 }
 
+.avatar {
+}
+
+.container {
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+
+.container .avatar {
+  /* width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 5px; */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 50px;
+  width: 100%;
+  height: 100%;
+}
+
+/* Style the button and place it in the middle of the container/image */
+.container .btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  background-color: #555;
+  opacity: 0.1;
+  color: white;
+  font-size: 16px;
+  padding: 12px 24px;
+  border: none;
+  cursor: pointer;
+  border-radius: 50px;
+  width: 100%;
+  height: 100%;
+}
+
+.container .btn:hover {
+  background-color: #555;
+  opacity: 1.0;
+  content: "Edit";
+}
+
+#closeModalButton {
+  position: absolute;
+  bottom: 0;
+}
+
+.modalContentCenter {
+  vertical-align: middle;
+}
+
+#firstModalLine {
+  margin-top: 15%;
+  color: red;
+}
+
+#secondModalLine {
+  margin-top: 10%;
+  padding-bottom: 150px;
+}
+
+#hiddenInput {
+  visibility: hidden;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
